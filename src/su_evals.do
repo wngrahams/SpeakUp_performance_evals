@@ -34,4 +34,46 @@ global TempFolder "data/temp"
 global FinalFolder "data/final"
 global OutputFolder "output"
 
+using "$RawFolder/Speak Up Staff Performance Evaluation Survey.dta", clear
+
+/*******************************************************************************
 ********************************************************************************
+	Enumerators: 
+		TODO:
+		- Overall weighted score
+		- Effective overall score
+		- Flag neutral or below
+		- Flag anyone a supervisor wouldn't want to work with agian
+********************************************************************************
+*******************************************************************************/
+
+
+
+
+/*******************************************************************************
+********************************************************************************
+	Supervisors: 
+		TODO:
+		- Average
+		- Supervisor rating
+		- Leadership quality bar graph
+		- Flag anyone enumerators wouldn't want to work with agian
+********************************************************************************
+*******************************************************************************/
+
+
+
+
+/*******************************************************************************
+********************************************************************************
+	Project Management: 
+		TODO:
+		- Overall average score
+		- Training weighted score
+		- Skills learned bar graph
+		- Skills improved bar graph
+********************************************************************************
+*******************************************************************************/
+
+
+
