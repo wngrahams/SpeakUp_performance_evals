@@ -16,7 +16,7 @@ set more off
 
 *Usernames
 // Jacklyn
-if "`c(username)'" == "???" {
+if "`c(username)'" == "Jacklyn" {
 	cd 
 }
 // Graham:
