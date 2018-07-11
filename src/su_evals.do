@@ -17,7 +17,7 @@ set more off
 *Usernames
 // Jacklyn
 if "`c(username)'" == "Jacklyn" {
-	cd 
+	cd "/Users/Jacklyn/Desktop/Speak Up Git Hub/SpeakUp_performance_evals/src/"
 }
 // Graham:
 else if "`c(username)'" == "grahamstubbs" {
