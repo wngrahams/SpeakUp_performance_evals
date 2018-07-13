@@ -41,7 +41,6 @@ global OutputFolder "output"
 /*******************************************************************************
 ********************************************************************************
 	Precleaning: 
-		TODO:
 		- Remove unneeded calculate variables used in surveyCTO
 ********************************************************************************
 *******************************************************************************/
@@ -71,7 +70,16 @@ noisily display "Precleaning done."
 noisily display "Performing enumerator analysis..."
 
 preserve
- 
+
+// we only need to look at supervisor's ratings of enumerators
+// TODO: maybe not, maybe also look at self evaluation - actually just do this 
+//     for overall
+keep if super_yn == 1 
+rename enum_behavioroutside_explain* behavioroutside_enum*
+rename enum_workagain_no* workagain_no_enum*
+reshape long enum_name enum_improve enum_survey enum_attention enum_ontime ///
+	  enum_direction enum_trust enum_teamwork enum_effective enum_workagain ///
+	  enum_behavioroutside, i(key) j(enum, string)
 
 restore
 
