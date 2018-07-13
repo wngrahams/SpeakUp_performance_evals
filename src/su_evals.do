@@ -1,10 +1,13 @@
 /******************************************************************************
   Employee Performance Evaluation for Speakup Round 4 Accident Data Collection
-Author: Jacklyn Pi, William Stubbs, Yuou Wu
+  
+Authors: Jacklyn Pi, William Stubbs, Yuou Wu
 Email: jcp119@georgetown.edu wgs11@georgetown.edu yw375@georgetown.edu
 Date: 09/07/2018
 Updated: 09/07/2018
 *******************************************************************************/
+
+quietly {
 
 	/*__________________
 	|					|
@@ -34,7 +37,25 @@ global TempFolder "data/temp"
 global FinalFolder "data/final"
 global OutputFolder "output"
 
-using "$RawFolder/Speak Up Staff Performance Evaluation Survey.dta", clear
+
+/*******************************************************************************
+********************************************************************************
+	Precleaning: 
+		TODO:
+		- Remove unneeded calculate variables used in surveyCTO
+********************************************************************************
+*******************************************************************************/
+
+noisily display _continue "Precleaning data... "
+
+use "$RawFolder/Speak Up Staff Performance Evaluation Survey.dta", clear
+
+drop project*
+
+save "$TempFolder/SpeakUp_Round4_Performance_eval_preclean.dta", replace
+use "$TempFolder/SpeakUp_Round4_Performance_eval_preclean.dta", clear
+
+noisily display "Precleaning done."
 
 /*******************************************************************************
 ********************************************************************************
@@ -47,8 +68,14 @@ using "$RawFolder/Speak Up Staff Performance Evaluation Survey.dta", clear
 ********************************************************************************
 *******************************************************************************/
 
+noisily display "Performing enumerator analysis..."
 
+preserve
+ 
 
+restore
+
+noisily display "Enumerator analysis complete."
 
 /*******************************************************************************
 ********************************************************************************
@@ -75,5 +102,5 @@ using "$RawFolder/Speak Up Staff Performance Evaluation Survey.dta", clear
 ********************************************************************************
 *******************************************************************************/
 
-
+} // end quietly
 
