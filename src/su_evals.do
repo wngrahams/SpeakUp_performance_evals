@@ -62,6 +62,7 @@ use "$RawFolder/Speak Up Staff Performance Evaluation Survey.dta", clear
 ********************************************************************************
 *******************************************************************************/
 
+// CREATING EXCEL SHEET
 //Average Ratings of Traits
 
 preserve
@@ -107,7 +108,8 @@ putexcel set "$OutputFolder/SpeakUpEvals.xlsx", modify sheet ("Ratings")
 
 restore
 
-//Super work again
+//Super work again and NOT work again: SHEET
+//comments from enums about why they would work for a supervisor again
 
 preserve 
 
@@ -123,10 +125,10 @@ putexcel set "$OutputFolder/SpeakUpEvals.xlsx", modify sheet ("Work Again")
 	export excel using "$OutputFolder/SpeakUpEvals.xlsx",  ///
 		cell(A2) sheet ("Work Again", modify)
 	levelsof super_name
+	
 restore
 
-
-//Super not work again
+//comments from enums about why they would NOT work for a supervisor again
 
 preserve 
 
@@ -145,7 +147,8 @@ putexcel set "$OutputFolder/SpeakUpEvals.xlsx", modify sheet ("Work Again")
 restore
 
 
-//Super absent
+//Super absent SHEET
+//comments from enums about how many times they had trouble reaching their supervisor
 
 preserve 
 
@@ -169,6 +172,7 @@ restore
 
 
 //Super Add Comments
+//comments from enums about their supervisor
 
 preserve 
 
@@ -190,6 +194,8 @@ restore
 
 
 // Past Supervisor Work Again
+// how many enums said they would work for a certain supervisor again 
+//if they didn't have them this current round of data collection
 
 preserve
 
@@ -243,7 +249,6 @@ local n "1 2 3 4 5 6 7 8 9 10 11"
 foreach i in `n'{
 	bysort super_name: egen numleaderqual`i' = count(super_leaderqual_`i') if super_leaderqual_`i' == 1
 }
-
 
 
 ///local super_name 
@@ -360,7 +365,9 @@ graph save "$OutputFolder/RosemaryLeaderQual", replace
 
 restore
 
-
+*****************************************************************************
+*****************************************************************************
+*****************************************************************************
 // Graphs of Need Improvement Leadership Qualities 
 
 local n "1 2 3 4 5 6 7 8 9 10"
@@ -483,10 +490,6 @@ note("Three Respondents") ylabel(#2)
 graph save "$OutputFolder/RosemaryImproveLeaderQual", replace
 
 restore
-
-
-
-
 	
 /*******************************************************************************
 ********************************************************************************
