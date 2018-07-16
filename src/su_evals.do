@@ -180,7 +180,7 @@ keep super_name super_addcomments
 
 
 putexcel set "$OutputFolder/SpeakUpEvals.xlsx", modify sheet ("Additional Comments")
-	putexcel A1 = ("Supervisor") B2 = ("Additional Comments") /// 
+	putexcel A1 = ("Supervisor") B1 = ("Additional Comments") /// 
 
 	/*export to excel*/ 
 	export excel using "$OutputFolder/SpeakUpEvals.xlsx",  ///
@@ -189,7 +189,45 @@ putexcel set "$OutputFolder/SpeakUpEvals.xlsx", modify sheet ("Additional Commen
 restore
 
 
+// Past Supervisor Work Again
 
+preserve
+
+keep pastsuper* 
+drop if pastsuper_yn == 0 | pastsuper_yn == .
+
+local n "1 2 3 4 5 6"
+foreach i in `n'{
+	egen numpastsuperworkagain`i' = count(pastsuper_workagain_`i') if pastsuper_workagain_`i' == 1
+}
+
+egen Blaise_pastworkagain = mean(numpastsuperworkagain1)
+egen Honda_pastworkagain = mean(numpastsuperworkagain2)
+egen Isaac_pastworkagain = mean(numpastsuperworkagain3)
+egen Joseline_pastworkagain = mean(numpastsuperworkagain4)
+egen Julie_pastworkagain = mean(numpastsuperworkagain5)
+egen Rosemary_pastworkagain = mean(numpastsuperworkagain6)
+gen Lawrence_pastworkagain = 2
+gen Godfrey_pastworkagain = 1
+
+keep if _n == 1
+ 
+replace Honda_pastworkagain = Honda_pastworkagain + 1
+collapse Blaise_pastworkagain Honda_pastworkagain Isaac_pastworkagain /// 
+			Joseline_pastworkagain Julie_pastworkagain Rosemary_pastworkagain /// 
+			Lawrence_pastworkagain Godfrey_pastworkagain
+			
+
+putexcel set "$OutputFolder/SpeakUpEvals.xlsx", modify sheet ("Past Supervisors")
+	putexcel A1 = ("Which supervisors would you want to work under again?") A2 = ("Supervisor") /// 
+		A3 = ("Blaise") A4 = ("Honda") 	A5 = ("Isaac") 	A6 = ("Joseline") /// 
+		A7 = ("Julie") 	A8 = ("Rosemary") A9 = ("Lawrence") A10 = ("Godfrey") /// 
+		B2 = ("How many people said they would want to work under the supervisor.") ///
+		B3 = (Blaise_pastworkagain) B4 = (Honda_pastworkagain) B5 = (Isaac_pastworkagain) /// 
+		B6 = (Joseline_pastworkagain) B7 = (Julie_pastworkagain) B8 = (Rosemary_pastworkagain) /// 
+		B9 = (Lawrence_pastworkagain) B10 = (Godfrey_pastworkagain)
+		
+restore 
 
 
 ********************************************************************************
@@ -205,6 +243,8 @@ local n "1 2 3 4 5 6 7 8 9 10 11"
 foreach i in `n'{
 	bysort super_name: egen numleaderqual`i' = count(super_leaderqual_`i') if super_leaderqual_`i' == 1
 }
+
+
 
 ///local super_name 
 // Blaise
