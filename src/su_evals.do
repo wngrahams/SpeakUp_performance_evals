@@ -74,15 +74,18 @@ Yuou-	Project Management/Training:
 		- Skills improved bar graph
 ********************************************************************************
 *******************************************************************************/ 
-// pre chleaning //
+// section pre-clearning //
 gen sup=1 if super_passcode==31415
 replace sup=0 if sup==.
 label var sup "supervisor"
 keep training* learning* skills* pm* sup
 tempfile tempdata
 save "`tempdata'"
+
+// pm evaluation //
 use `tempdata', clear
 local pmquality "clarity respect responsive approach effective accountable knowledge logistics overall"
+local pmquality2 "respect responsive approach effective accountable knowledge logistics overall"
 foreach i in `pmquality' {
 	label var pm_`i' `i'
 	label values pm_`i' .
@@ -90,42 +93,92 @@ foreach i in `pmquality' {
 label define enumerator_lb 0 "enumerator" 1 "supervisor"
 label values sup enumerator_lb
 
-// PM overall average score // 
-tabout pm_clarity pm_respect pm_responsive pm_approach pm_effective pm_accountable ///
- 	pm_knowledge pm_logistics pm_overall sup using staff_eval.xls, replace c(freq col) ///
-	f(0c 1) font(bold) style(xlsx) ptotal(none)
-tabcount pm_clarity sup, v1(1/5) v2(0/1) replace
+// create frequency tables for scores //
+	// base matrix //
+local sup "enumerator supervisor total"
+matrix A = (.,.,.) 
+matrix B = (.)
+tabcount pm_clarity sup, v1(1/5) v2(0/1) mat(pmsup)
+tabcount pm_clarity, v(1/5) mat(pmtotal)
+matrix pmeval = pmsup, pmtotal
+matrix pmeval = pmeval\A
+matlist pmeval
+	// appending matrix //
+foreach i in `pmquality2'{
+	tabcount pm_`i' sup, v1(1/5) v2(0/1) mat(`i'a)
+	tabcount pm_`i', v(1/5) mat(`i'b)
+	matrix pmeval`i' = `i'a, `i'b
+	matrix pmeval = pmeval\pmeval`i'\A
+}
+matrix colnames pmeval = `sup'
+matlist pmeval
+
+// create percentage count table for scores //
+local percentsup "enumerator(%count) supervisor(%count) total(%count)"
+local l "1 2 3 4 5"
+	// base matrix //
+preserve
+tabcount pm_clarity sup, v1(1/5) v2(0/1) replace mat(pcsup)
 bysort sup: egen su = total(_freq)
 bysort sup: gen pcsup = _freq /su
-tabdisp pm_clarity sup, c(_freq pcsup)
-matrix tabdisp = e(b)
-matlist tabdisp
-// rename sheet //
-preserve
-insheet using "staff_eval.xls", clear 
-export excel using "staff_eval.xlsx", sheetreplace sheet("pm_eval") 
-rm "staff_eval.xls" 
+mkmat pcsup if sup==0, matrix(X)
+mkmat pcsup if sup==1, matrix(Y)
 restore
+preserve
+tabcount pm_clarity, v(1/5) replace mat(pctotal)
+egen perc = total(_freq)
+gen pctotal = _freq/perc
+mkmat pctotal, matrix(Z)
+matrix M = X,Y,Z\A
+matrix rownames M=`l'
+restore
+	//appending matrix //
+foreach i in `pmquality2'{
+	preserve
+	tabcount pm_`i' sup, v1(1/5) v2(0/1) replace mat(`i'c)
+	bysort sup: egen su = total(_freq)
+	bysort sup: gen pcsup = _freq /su
+	mkmat pcsup if sup==0, matrix(X`i')
+	mkmat pcsup if sup==1, matrix(Y`i')
+	restore
+	preserve
+	tabcount pm_`i', v(1/5) replace mat(`i'd)
+	egen perc = total(_freq)
+	gen pctotal = _freq/perc
+	mkmat pctotal, matrix(Z`i')
+	matrix M`i' = X`i',Y`i',Z`i'\A
+	matrix rownames M`i'=`l'
+	matrix M=M\M`i'
+	restore
+	}
+matrix colnames M=`percentsup'
+matlist M
 
-// sum average //
+// set up excel //
+putexcel set staff_eval.xlsx, sheet(pm_eval) modify
+putexcel A1=matrix(pmeval), names nformat(number_d2) // frequency 
+putexcel E1= matrix(M), names nformat(number_d2)	// % count 
+putexcel A1= "Clarity" A7="Respect" A13="Responsive" A19="Approach" A25="Effective" A31="Accountable" A37="Knowledge" A43="Logistics" A49="Overall" A55=""
+putexcel E1= "Clarity" E7="Respect" E13="Responsive" E19="Approach" E25="Effective" E31="Accountable" E37="Knowledge" E43="Logistics" E49="Overall" E55=""
+
+// average mean score based on attributes //
 tabstat pm_clarity pm_respect pm_responsive pm_approach pm_effective pm_accountable ///
  	pm_knowledge pm_logistics pm_overall, stat(mean) save
 matrix results = r(StatTotal)
 matrix colnames results = `pmquality'
 matlist results
 putexcel set staff_eval.xlsx, sheet(pm_eval) modify
-putexcel J2=matrix(results), names nformat(number_d2)
-// percentage // 
+putexcel K2=matrix(results), names nformat(number_d2)
+// average weighted score -- percentage // 
 matrix percentage = results/5*100
 matrix rownames percentage=Percentage
-putexcel J7=matrix(percentage), names nformat(number_d2)
 matlist percentage
+putexcel K7=matrix(percentage), names nformat(number_d2)
 
-
-// skills learned // 
+****************************// skills // ***************************************
+// skills learned //
 local number "2 3 4 5 6 7 8 9 10 11"
 local skills "Leadership_skills Organization_skills Public_speaking Time_management Tech_skills Working_with_others Problem_solving Attention_to_detail Communication_skills Conflict_resolution Other"
-// matrix totalskills = r(StatTotal)
 tabstat skills_learned_1 if (skills_learned_1==1), stat(count) save
 matrix skillslearned=r(StatTotal)
 foreach i in `number'{
@@ -138,14 +191,9 @@ foreach i in `number'{
 matrix colnames skillslearned = `skills'
 matrix rownames skillslearned = count
 matlist skillslearned
-putexcel set staff_eval.xlsx, sheet(skills) modify
-putexcel A2=matrix(skillslearned), names
-// graph bar skill1 skill2 skill3 skill4 skill5 skill6 skill7 
-// graph export skilllearned.png, replace
 drop skill? skill??
 
 // skills improved //
-local skills "Leadership_skills Organization_skills Public_speaking Time_management Tech_skills Working_with_others Problem_solving Attention_to_detail Communication_skills Conflict_resolution Other"
 tabstat skills_improve_1 if (skills_improve_1==1), stat(count) save
 matrix skillsimproved=r(StatTotal)
 foreach i in `number'{
@@ -155,21 +203,19 @@ foreach i in `number'{
 	count if skills_improve_`i'==1 
 	gen skill`i'=r(N)
  }
-// install with command dm79/matselrc.ado //
-// matselrc skillsimproved improved, c(2 3)
 matrix colnames skillsimproved = `skills'
 capture matrix rownames skillsimproved = count
 matlist skillsimproved
-putexcel set staff_eval.xlsx, sheet(skills) modify
-putexcel A8=matrix(skillsimproved), names
-// graph bar skill1 skill2 skill3 skill4 skill5 skill6 skill7 
-// graph export skillimproved.png, replace
 drop skill? skill??
 
-// excel lookup lable//
+// excel setup//
+putexcel set staff_eval.xlsx, sheet(skills) modify
+putexcel A2=matrix(skillslearned), names 
+putexcel A8=matrix(skillsimproved), names 
 putexcel A1="Skills learned" A7="Skills improved" 
 
-// training aspects //
+********************************************************************************
+// training  //
 label var training_intro Introduction
 label var training_surveyoverview "Survey Overview"
 label var training_surveypractice "Survey Practice"
@@ -183,7 +229,7 @@ export excel using "staff_eval.xlsx", sheetreplace sheet("training")
 rm "training.xls" 
 restore
 
-// learning aspects // 
+// learning // 
 local learning "roleplaying presentation study game"
 foreach i in `learning'{
 	label values learning_`i' .
