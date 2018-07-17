@@ -66,7 +66,7 @@ use "$RawFolder/Speak Up Staff Performance Evaluation Survey.dta", clear
 
 /*******************************************************************************
 ********************************************************************************
-	Project Management/Training: 
+Yuou-	Project Management/Training: 
 		TODO:
 		- Overall average score
 		- Training weighted score
@@ -75,14 +75,17 @@ use "$RawFolder/Speak Up Staff Performance Evaluation Survey.dta", clear
 ********************************************************************************
 *******************************************************************************/ 
 // pre chleaning //
-
 gen sup=1 if super_passcode==31415
 replace sup=0 if sup==.
 label var sup "supervisor"
 keep training* learning* skills* pm* sup
+tempfile tempdata
+save "`tempdata'"
+use `tempdata', clear
 local pmquality "clarity respect responsive approach effective accountable knowledge logistics overall"
 foreach i in `pmquality' {
 	label var pm_`i' `i'
+	label values pm_`i' .
 }
 label define enumerator_lb 0 "enumerator" 1 "supervisor"
 label values sup enumerator_lb
@@ -91,7 +94,12 @@ label values sup enumerator_lb
 tabout pm_clarity pm_respect pm_responsive pm_approach pm_effective pm_accountable ///
  	pm_knowledge pm_logistics pm_overall sup using staff_eval.xls, replace c(freq col) ///
 	f(0c 1) font(bold) style(xlsx) ptotal(none)
-
+tabcount pm_clarity sup, v1(1/5) v2(0/1) replace
+bysort sup: egen su = total(_freq)
+bysort sup: gen pcsup = _freq /su
+tabdisp pm_clarity sup, c(_freq pcsup)
+matrix tabdisp = e(b)
+matlist tabdisp
 // rename sheet //
 preserve
 insheet using "staff_eval.xls", clear 
@@ -103,6 +111,7 @@ restore
 tabstat pm_clarity pm_respect pm_responsive pm_approach pm_effective pm_accountable ///
  	pm_knowledge pm_logistics pm_overall, stat(mean) save
 matrix results = r(StatTotal)
+matrix colnames results = `pmquality'
 matlist results
 putexcel set staff_eval.xlsx, sheet(pm_eval) modify
 putexcel J2=matrix(results), names nformat(number_d2)
@@ -114,8 +123,8 @@ matlist percentage
 
 
 // skills learned // 
-local number "2 3 4 5 6 7 8 9 10"
-
+local number "2 3 4 5 6 7 8 9 10 11"
+local skills "Leadership_skills Organization_skills Public_speaking Time_management Tech_skills Working_with_others Problem_solving Attention_to_detail Communication_skills Conflict_resolution Other"
 // matrix totalskills = r(StatTotal)
 tabstat skills_learned_1 if (skills_learned_1==1), stat(count) save
 matrix skillslearned=r(StatTotal)
@@ -126,8 +135,9 @@ foreach i in `number'{
 	count if skills_learned_`i'==1 
 	gen skill`i'=r(N)
  }
-matlist skillslearned
+matrix colnames skillslearned = `skills'
 matrix rownames skillslearned = count
+matlist skillslearned
 putexcel set staff_eval.xlsx, sheet(skills) modify
 putexcel A2=matrix(skillslearned), names
 // graph bar skill1 skill2 skill3 skill4 skill5 skill6 skill7 
@@ -135,29 +145,7 @@ putexcel A2=matrix(skillslearned), names
 drop skill? skill??
 
 // skills improved //
-label var skills_learned_1 "leadership skills"
-label var skills_improve_1 "leadership skills"
-label var skills_learned_2 "Organizational Skills"
-label var skills_improve_2 "Organizational Skills"
-label var skills_learned_3 "Public Speaking"
-label var skills_improve_3 "Public Speaking"
-label var skills_learned_4 "Time Management"
-label var skills_improve_4 "Time Management"
-label var skills_learned_5 "Technology Skills"
-label var skills_learned_5 "Technology Skills"
-label var skills_learned_6 "Working with Others"
-label var skills_improve_6 "Working with Others"
-label var skills_learned_7 "Problem Solving"
-label var skills_improve_7 "Problem Solving"
-label var skills_learned_8 "Attention to Detail"
-label var skills_improve_8 "Attention to Detail"
-label var skills_learned_9 "Communication Skills"
-label var skills_improve_9 "Communication Skills"
-label var skills_learned_10 "Conflict Resolution"
-label var skills_improve_10 "Conflict Resolution"
-label var skills_learned_11 "Other"
-label var skills_improve_11 "Other"
-
+local skills "Leadership_skills Organization_skills Public_speaking Time_management Tech_skills Working_with_others Problem_solving Attention_to_detail Communication_skills Conflict_resolution Other"
 tabstat skills_improve_1 if (skills_improve_1==1), stat(count) save
 matrix skillsimproved=r(StatTotal)
 foreach i in `number'{
@@ -167,26 +155,24 @@ foreach i in `number'{
 	count if skills_improve_`i'==1 
 	gen skill`i'=r(N)
  }
-matselrc skillsimproved improved, c(2 3)
-matlist improved
+// install with command dm79/matselrc.ado //
+// matselrc skillsimproved improved, c(2 3)
+matrix colnames skillsimproved = `skills'
 capture matrix rownames skillsimproved = count
+matlist skillsimproved
 putexcel set staff_eval.xlsx, sheet(skills) modify
 putexcel A8=matrix(skillsimproved), names
 // graph bar skill1 skill2 skill3 skill4 skill5 skill6 skill7 
 // graph export skillimproved.png, replace
 drop skill? skill??
 
-
 // excel lookup lable//
-putexcel A14="Values" A15=1 A16=2 A17=3 A18=4 A19=5 A20=6 A21=7 A22=8 A23=9 A24=10 A25=11
-putexcel B14="Label" B15="Leadership Skills" B16="Organization Skills" B17="Public Speaking" ///
-	B18="Time Management" B19="Technology Skills" B20="Working with others" B21="Problem Solving" ///
-	B22="Attention to Detail" B23="Communication Skills" B24="Conflict Resolution" B25="Other"
+putexcel A1="Skills learned" A7="Skills improved" 
 
 // training aspects //
 label var training_intro Introduction
-label var training_surveyoverview Overview
-label var training_surveypractice Practice
+label var training_surveyoverview "Survey Overview"
+label var training_surveypractice "Survey Practice"
 label var training_field "Field Challenge"
 tabout training_tests training_intro training_surveyoverview training_surveypractice ///
 	training_field using training.xls, one replace c(freq col) f(0c 1) font(bold) style(xlsx) ptotal(none)
@@ -198,10 +184,9 @@ rm "training.xls"
 restore
 
 // learning aspects // 
-label define learning 1 "1" 2 "2" 3 "3" 4 "4"
 local learning "roleplaying presentation study game"
 foreach i in `learning'{
-	label values learning_`i' learning
+	label values learning_`i' .
 }
 
 tabout learning_roleplaying learning_presentation learning_study learning_game ///
