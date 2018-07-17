@@ -62,11 +62,15 @@ noi display "Done."
 /*******************************************************************************
 ********************************************************************************
 	Enumerators: 
-		TODO:
-		- Overall weighted score
-		- Effective overall score
-		- Flag neutral or below
+		- Average overall score
+		- Adjusted average score
+		- Flag below 1 standard deviation
 		- Flag anyone a supervisor wouldn't want to work with agian
+		
+	Input: 
+		$TempFolder/SpeakUp_Round4_Performance_eval_preclean.dta
+	Output:
+		$OutputFolder/Speak_Up_Staff_Evals.xlsx
 ********************************************************************************
 *******************************************************************************/
 
@@ -122,9 +126,11 @@ noi display _continue _col(5) "Exporting data for current enumerators... "
 export excel enum_name enum_avgscore enum_adjustedscore enum_effective ///
 	enum_workagain_str using "$OutputFolder/Speak_Up_Staff_Evals.xlsx", ///
 	sheetmodify sheet("Enumerators") firstrow(varl) cell(A1)
-putexcel set "$OutputFolder/Speak_Up_Staff_Evals.xlsx", modify sheet("Enumerators")
+putexcel set "$OutputFolder/Speak_Up_Staff_Evals.xlsx", ///
+	modify sheet("Enumerators")
 putexcel (A1:E1), bold border(bottom, medium, black) overwritefmt
 
+// mata used for conditional formatting
 mata 
 
 	st_view(Z=., ., ("enum_name", "enum_avgscore", "enum_adjustedscore", "enum_effective", "enum_workagain"))
@@ -203,6 +209,7 @@ drop enum_avgscore enum_teamavg enum_sd z1enum_score enum_adjustedscore ///
 	enum_workagain_str
 reshape wide
 
+// reshape long for past enumerator analysis
 rename pastenum_behavioroutside_ex* behavioroutside_pastenum*
 rename pastenum_workagain_no* workagain_no_pastenum*
 reshape long pastenum_name pastenum_improve pastenum_survey ///
@@ -247,6 +254,7 @@ putexcel (A`pastenum_title') = "Past Enumerators", bold overwritefmt
 putexcel (A`pastenum_row':E`pastenum_row'), ///
 	bold border(bottom, medium, black) overwritefmt
 
+// mata for conditional formatting
 mata 
 
 	st_view(Z=., ., ("pastenum_name", "pastenum_avgscore", "pastenum_effective", "pastenum_workagain"))
