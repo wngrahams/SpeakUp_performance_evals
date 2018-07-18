@@ -229,6 +229,20 @@ export excel using "staff_eval.xlsx", sheetreplace sheet("training")
 rm "training.xls" 
 restore
 
+// average weighted score -- percentage  //
+putexcel set staff_eval.xlsx, sheet(training) modify
+local training "tests introduction suvery_overview survey_practice field_challenge"
+tabstat training_tests training_intro training_surveyoverview training_surveypractice ///
+	training_field, stat(mean) save
+matrix training = r(StatTotal)
+matrix colnames training = `training'
+
+matrix C= (5,5,5,5,5) 
+matrix trainingperc = (C-training)/5*100
+matrix rownames trainingperc=Percentage
+matlist trainingperc
+putexcel G1=matrix(trainingperc), names nformat(number_d2)
+
 // learning // 
 local learning "roleplaying presentation study game"
 foreach i in `learning'{
@@ -243,3 +257,15 @@ insheet using "learning.xls", clear
 export excel using "staff_eval.xlsx", sheetreplace sheet("learning") 
 rm "learning.xls" 
 restore
+
+// average weighted score -- percentage  //
+putexcel set staff_eval.xlsx, sheet(learning) modify
+tabstat learning_roleplaying learning_presentation learning_study learning_game, stat(mean) save
+matrix learning = r(StatTotal)
+matrix colnames learning = `learning'
+
+matrix D= (4,4,4,4) 
+matrix learningperc = (D-learning)/4*100
+matrix rownames learningperc=Percentage
+matlist learningperc
+putexcel G1=matrix(learningperc), names nformat(number_d2)
