@@ -4,14 +4,14 @@
 Authors: Jacklyn Pi, William Stubbs, Yuou Wu
 Email: jcp119@georgetown.edu wgs11@georgetown.edu yw375@georgetown.edu
 Date: 09/07/2018
-Updated: 18/07/2018
+Updated: 16/07/2018
 *******************************************************************************/
 
 quietly {
 
 	/*__________________
-	|                   |
-	|   Preliminaries   |
+	|					|
+	|	Preliminaries	|
 	|___________________*/
 
 clear all
@@ -24,7 +24,7 @@ if "`c(username)'" == "Jacklyn" {
 }
 // Graham:
 else if "`c(username)'" == "grahamstubbs" {
-	cd "/Users/grahamstubbs/Documents/Summer_2018/stata/SpeakUp_performance_evals/"
+	cd "/Users/grahamstubbs/Documents/Summer_2018/stata/SpeakUp_performance_evals/SpeakUp_performance_evals/"
 }
 // Yuou:
 else if "`c(username)'" == "yuouwu" {
@@ -314,28 +314,17 @@ noi display "Enumerator analysis complete."
 /*******************************************************************************
 ********************************************************************************
 	Supervisors: 
-		- Average
+		TODO:
+		- Average 
 		- Supervisor rating 
 		- Leadership quality bar graph
 		- Leadership  needed improvement bar graph
-		- Flag anyone supervisors wouldn't want to work with again
-		
-	Input: 
-		$TempFolder/SpeakUp_Round4_Performance_eval_preclean.dta
-	Output:
-		$OutputFolder/Speak_Up_Staff_Evals.xlsx
+		- Flag anyone enumerators wouldn't want to work with again
 ********************************************************************************
 *******************************************************************************/
 
 // CREATING EXCEL SHEET
 //Average Ratings of Traits
-
-noi display "Performing supervisor analysis... "
-
-preserve
-
-keep super* 
-drop if super_yn == 1
 
 **get the average overall score for the categories of the agree statements
 bysort super_name: egen avgsuper_goodexample = mean(super_goodexample)
@@ -349,9 +338,13 @@ bysort super_name: egen avgsuper_empowerment = mean(super_empowerment)
 bysort super_name: egen avgsuper_constructive = mean(super_constructive)
 bysort super_name: egen avgsuper_rate = mean(super_rate)
 
-noi display _continue _col(5) "Exporting to excel... "
+preserve 
+keep super* 
+drop if super_yn == 1
 
-putexcel set "$OutputFolder/Speak_Up_Staff_Evals.xlsx", modify sheet ("Ratings")
+
+
+putexcel set "$OutputFolder/SpeakUpEvals.xlsx", modify sheet ("Ratings")
 	putexcel A2 = ("Supervisor") B2 = ("Good Example Rating") /// 
 		C2= ("Helpful Rating") D2=("Anticipate Rating") ///
 		E2=("Approach Rating") F2=("Communication Rating") G2=("Logistics Rating") H2=("Team Environment Rating") ///
@@ -372,13 +365,13 @@ putexcel set "$OutputFolder/Speak_Up_Staff_Evals.xlsx", modify sheet ("Ratings")
 	collapse super_goodexample super_helpful super_anticipate super_approach ///
 		super_communication super_logistics super_environment super_empowerment ///
 		super_constructive super_rate, by(super_name)
-	export excel using "$OutputFolder/Speak_Up_Staff_Evals.xlsx",  ///
+	export excel using "$OutputFolder/SpeakUpEvals.xlsx",  ///
 		cell(A5) sheet ("Ratings", modify)
 	levelsof super_name
 
 restore
 
-// Blaise
+// Blaise GRAPH
 preserve  
 
 keep if super_name == "Blaise"
@@ -392,10 +385,102 @@ legend(label( 5 "Communication")) legend(label( 6 "Logistics")) legend(label( 7 
 legend(label( 8 "Empowerment")) legend(label( 9 "Constructive")) legend(label( 10 "Overall Rating")) ///
 note("Seven Respondents")
 
-graph save "$OutputFolder/BlaiseLeaderQual", replace
+graph save "$OutputFolder/BlaiseRating", replace
 
 restore
 
+
+// Honda
+preserve  
+
+keep if super_name == "Honda"
+
+graph bar avgsuper_goodexample avgsuper_helpful avgsuper_anticipate avgsuper_approach ///
+		avgsuper_communication avgsuper_logistics avgsuper_environment avgsuper_empowerment ///
+		avgsuper_constructive avgsuper_rate /// 
+,blabel(bar) bargap(25) ytitle(Average Rating) title(Honda's Ratings) legend(label( 1 "Good Example")) /// 
+legend(label( 2 "Helpful")) legend(label( 3 "Anticipate")) legend(label( 4 "Approach")) /// 
+legend(label( 5 "Communication")) legend(label( 6 "Logistics")) legend(label( 7 "Environment")) /// 
+legend(label( 8 "Empowerment")) legend(label( 9 "Constructive")) legend(label( 10 "Overall Rating")) ///
+note("Four Respondents")
+
+graph save "$OutputFolder/HondaRating", replace
+
+restore
+
+
+// Isaac
+preserve  
+
+keep if super_name == "Isaac"
+
+graph bar avgsuper_goodexample avgsuper_helpful avgsuper_anticipate avgsuper_approach ///
+		avgsuper_communication avgsuper_logistics avgsuper_environment avgsuper_empowerment ///
+		avgsuper_constructive avgsuper_rate /// 
+,blabel(bar) bargap(25) ytitle(Average Rating) title(Isaac's Ratings) legend(label( 1 "Good Example")) /// 
+legend(label( 2 "Helpful")) legend(label( 3 "Anticipate")) legend(label( 4 "Approach")) /// 
+legend(label( 5 "Communication")) legend(label( 6 "Logistics")) legend(label( 7 "Environment")) /// 
+legend(label( 8 "Empowerment")) legend(label( 9 "Constructive")) legend(label( 10 "Overall Rating")) ///
+note("Three Respondents")
+
+graph save "$OutputFolder/IsaacRating", replace
+
+restore
+
+// Joseline
+preserve  
+
+keep if super_name == "Joseline"
+
+graph bar avgsuper_goodexample avgsuper_helpful avgsuper_anticipate avgsuper_approach ///
+		avgsuper_communication avgsuper_logistics avgsuper_environment avgsuper_empowerment ///
+		avgsuper_constructive avgsuper_rate /// 
+,blabel(bar) bargap(25) ytitle(Average Rating) title(Joseline's Ratings) legend(label( 1 "Good Example")) /// 
+legend(label( 2 "Helpful")) legend(label( 3 "Anticipate")) legend(label( 4 "Approach")) /// 
+legend(label( 5 "Communication")) legend(label( 6 "Logistics")) legend(label( 7 "Environment")) /// 
+legend(label( 8 "Empowerment")) legend(label( 9 "Constructive")) legend(label( 10 "Overall Rating")) ///
+note("Seven Respondents")
+
+graph save "$OutputFolder/JoselineRating", replace
+
+restore
+
+// Julie
+preserve  
+
+keep if super_name == "Julie"
+
+graph bar avgsuper_goodexample avgsuper_helpful avgsuper_anticipate avgsuper_approach ///
+		avgsuper_communication avgsuper_logistics avgsuper_environment avgsuper_empowerment ///
+		avgsuper_constructive avgsuper_rate /// 
+,blabel(bar) bargap(25) ytitle(Average Rating) title(Julie's Ratings) legend(label( 1 "Good Example")) /// 
+legend(label( 2 "Helpful")) legend(label( 3 "Anticipate")) legend(label( 4 "Approach")) /// 
+legend(label( 5 "Communication")) legend(label( 6 "Logistics")) legend(label( 7 "Environment")) /// 
+legend(label( 8 "Empowerment")) legend(label( 9 "Constructive")) legend(label( 10 "Overall Rating")) ///
+note("Four Respondents")
+
+graph save "$OutputFolder/JulieRating", replace
+
+restore
+
+
+// Rosemary
+preserve  
+
+keep if super_name == "Rosemary"
+
+graph bar avgsuper_goodexample avgsuper_helpful avgsuper_anticipate avgsuper_approach ///
+		avgsuper_communication avgsuper_logistics avgsuper_environment avgsuper_empowerment ///
+		avgsuper_constructive avgsuper_rate /// 
+,blabel(bar) bargap(25) ytitle(Average Rating) title(Rosemary's Ratings) legend(label( 1 "Good Example")) /// 
+legend(label( 2 "Helpful")) legend(label( 3 "Anticipate")) legend(label( 4 "Approach")) /// 
+legend(label( 5 "Communication")) legend(label( 6 "Logistics")) legend(label( 7 "Environment")) /// 
+legend(label( 8 "Empowerment")) legend(label( 9 "Constructive")) legend(label( 10 "Overall Rating")) ///
+note("Three Respondents")
+
+graph save "$OutputFolder/RosemaryRating", replace
+
+restore
 
 //Super work again and NOT work again: SHEET
 //comments from enums about why they would work for a supervisor again
@@ -407,12 +492,12 @@ keep if super_workagain == 1
 keep super_name super_workagain_why
 sort super_name
 
-putexcel set "$OutputFolder/Speak_Up_Staff_Evals.xlsx", modify sheet ("Supervisor Work Again")
-	putexcel A1 = ("Supervisor") B1 = ("Supervisor Work Again?") /// 
+putexcel set "$OutputFolder/SpeakUpEvals.xlsx", modify sheet ("Work Again")
+	putexcel A1 = ("Supervisor") B1 = ("Why Work Again?") /// 
 
 	/*export to excel*/ 
-	export excel using "$OutputFolder/Speak_Up_Staff_Evals.xlsx",  ///
-		cell(A2) sheet ("Supervisor Work Again", modify)
+	export excel using "$OutputFolder/SpeakUpEvals.xlsx",  ///
+		cell(A2) sheet ("Work Again", modify)
 	levelsof super_name
 	
 restore
@@ -426,12 +511,12 @@ keep if super_workagain == 0
 keep super_name super_workagain_whynot
 
 
-putexcel set "$OutputFolder/Speak_Up_Staff_Evals.xlsx", modify sheet ("Work Again")
+putexcel set "$OutputFolder/SpeakUpEvals.xlsx", modify sheet ("Work Again")
 	putexcel A30 = ("Supervisor") B30 = ("Why Not Work Again?") /// 
 
 	/*export to excel*/ 
-	export excel using "$OutputFolder/Speak_Up_Staff_Evals.xlsx",  ///
-		cell(A31) sheet ("Supervisor Work Again", modify)
+	export excel using "$OutputFolder/SpeakUpEvals.xlsx",  ///
+		cell(A31) sheet ("Work Again", modify)
 	levelsof super_name
 restore
 
@@ -445,16 +530,19 @@ sort super_name
 
 keep if super_absent == 1
 keep super_name super_absent_num
+bysort super_name: egen numsuper_absent = count(super_absent_num) if super_absent == 1
+//geting rid of duplicates
+bysort super_name (numsuper_absent) : keep if _n == _N 
+drop super_absent_num
 
-
-putexcel set "$OutputFolder/Speak_Up_Staff_Evals.xlsx", modify sheet ("Supervisor Absences")
+putexcel set "$OutputFolder/SpeakUpEvals.xlsx", modify sheet ("Absent")
 	putexcel B4 = ("Supervisor") C4 = ("How Many Times Absent") /// 
 	A1 = ("Are you aware of any incidents in which you had difficulty reaching out to your supervisor?") ///
 	A2 = ("How many times was your supervisor difficult to reach?")
 
 	/*export to excel*/ 
-	export excel using "$OutputFolder/Speak_Up_Staff_Evals.xlsx",  ///
-		cell(B5) sheet ("Supervisor Absences", modify)
+	export excel using "$OutputFolder/SpeakUpEvals.xlsx",  ///
+		cell(B5) sheet ("Absent", modify)
 	levelsof super_name
 restore
 
@@ -472,11 +560,11 @@ drop if super_addcomments == "None" | super_addcomments == "No" | super_addcomme
 keep super_name super_addcomments
 
 
-putexcel set "$OutputFolder/Speak_Up_Staff_Evals.xlsx", modify sheet ("Additional Comments")
+putexcel set "$OutputFolder/SpeakUpEvals.xlsx", modify sheet ("Additional Comments")
 	putexcel A1 = ("Supervisor") B1 = ("Additional Comments") /// 
 
 	/*export to excel*/ 
-	export excel using "$OutputFolder/Speak_Up_Staff_Evals.xlsx",  ///
+	export excel using "$OutputFolder/SpeakUpEvals.xlsx",  ///
 		cell(A2) sheet ("Additional Comments", modify)
 	levelsof super_name
 restore
@@ -521,7 +609,7 @@ collapse Blaise_pastworkagain Honda_pastworkagain Isaac_pastworkagain ///
 			Lawrence_pastworkagain Godfrey_pastworkagain
 			
 
-putexcel set "$OutputFolder/Speak_Up_Staff_Evals.xlsx", modify sheet ("Past Supervisors")
+putexcel set "$OutputFolder/SpeakUpEvals.xlsx", modify sheet ("Past Supervisors")
 	putexcel A1 = ("Which supervisors would you want to work under again?") A2 = ("Supervisor") /// 
 		A3 = ("Blaise") A4 = ("Honda") 	A5 = ("Isaac") 	A6 = ("Joseline") /// 
 		A7 = ("Julie") 	A8 = ("Rosemary") A9 = ("Lawrence") A10 = ("Godfrey") /// 
@@ -532,8 +620,6 @@ putexcel set "$OutputFolder/Speak_Up_Staff_Evals.xlsx", modify sheet ("Past Supe
 		
 restore 
 
-noi display _col(5) "Done."
-
 
 ********************************************************************************
 ********************************************************************************
@@ -541,9 +627,6 @@ noi display _col(5) "Done."
 ********************************************************************************
 
 ///Graphs of Leadership Qualities
-
-noi display _continue _col(5) "Graphing leadership qualities... "
-
 keep super* 
 drop if super_yn == 1
 
@@ -560,7 +643,7 @@ keep if super_name == "Blaise"
 graph bar (mean) numleaderqual1 (mean) numleaderqual2 (mean) numleaderqual3 /// 
 (mean) numleaderqual4 (mean)  numleaderqual5 (mean) numleaderqual6 (mean) numleaderqual7 /// 
 (mean) numleaderqual8 (mean) numleaderqual9 (mean) numleaderqual10 ///
-,blabel(bar) ytitle(Number of Responses) title(Blaise's Leadership Qualities) legend(label( 1 "Patience")) /// 
+,blabel(bar) bargap(25) ytitle(Number of Responses) title(Blaise's Leadership Qualities) legend(label( 1 "Patience")) /// 
 legend(label( 2 "Fairness")) legend(label( 3 "Honesty")) legend(label( 4 "Problem Solving Skills")) /// 
 legend(label( 5 "Communication")) legend(label( 6 "Approachability")) legend(label( 7 "Empowering")) /// 
 legend(label( 8 "Trustworthiness")) legend(label( 9 "Responsible")) legend(label( 10 "Good mentor/teacher")) ///
@@ -578,7 +661,7 @@ keep if super_name == "Isaac"
 graph bar (mean) numleaderqual1 (mean) numleaderqual2 (mean) numleaderqual3 /// 
 (mean) numleaderqual4 (mean)  numleaderqual5 (mean) numleaderqual6 (mean) numleaderqual7 /// 
 (mean) numleaderqual8 (mean) numleaderqual9 (mean) numleaderqual10 ///
-,blabel(bar) ytitle(Number of Responses) title(Isaac's Leadership Qualities) legend(label( 1 "Patience")) /// 
+,blabel(bar) bargap(25) ytitle(Number of Responses) title(Isaac's Leadership Qualities) legend(label( 1 "Patience")) /// 
 legend(label( 2 "Fairness")) legend(label( 3 "Honesty")) legend(label( 4 "Problem Solving Skills")) /// 
 legend(label( 5 "Communication")) legend(label( 6 "Approachability")) legend(label( 7 "Empowering")) /// 
 legend(label( 8 "Trustworthiness")) legend(label( 9 "Responsible")) legend(label( 10 "Good mentor/teacher")) ///
@@ -597,7 +680,7 @@ keep if super_name == "Honda"
 graph bar (mean) numleaderqual1 (mean) numleaderqual2 (mean) numleaderqual3 /// 
 (mean) numleaderqual4 (mean)  numleaderqual5 (mean) numleaderqual6 (mean) numleaderqual7 /// 
 (mean) numleaderqual8 (mean) numleaderqual9 (mean) numleaderqual10 (mean) numleaderqual11 ///
-,blabel(bar) ytitle(Number of Responses) title(Honda's Leadership Qualities) legend(label( 1 "Patience")) /// 
+,blabel(bar) bargap(25) ytitle(Number of Responses) title(Honda's Leadership Qualities) legend(label( 1 "Patience")) /// 
 legend(label( 2 "Fairness")) legend(label( 3 "Honesty")) legend(label( 4 "Problem Solving Skills")) /// 
 legend(label( 5 "Communication")) legend(label( 6 "Approachability")) legend(label( 7 "Empowering")) /// 
 legend(label( 8 "Trustworthiness")) legend(label( 9 "Responsible")) legend(label( 10 "Good mentor/teacher")) ///
@@ -616,7 +699,7 @@ keep if super_name == "Joseline"
 graph bar (mean) numleaderqual1 (mean) numleaderqual2 (mean) numleaderqual3 /// 
 (mean) numleaderqual4 (mean)  numleaderqual5 (mean) numleaderqual6 (mean) numleaderqual7 /// 
 (mean) numleaderqual8 (mean) numleaderqual9 (mean) numleaderqual10  ///
-,blabel(bar) ytitle(Number of Responses) title(Joseline's Leadership Qualities) legend(label( 1 "Patience")) /// 
+,blabel(bar) bargap(25) ytitle(Number of Responses) title(Joseline's Leadership Qualities) legend(label( 1 "Patience")) /// 
 legend(label( 2 "Fairness")) legend(label( 3 "Honesty")) legend(label( 4 "Problem Solving Skills")) /// 
 legend(label( 5 "Communication")) legend(label( 6 "Approachability")) legend(label( 7 "Empowering")) /// 
 legend(label( 8 "Trustworthiness")) legend(label( 9 "Responsible")) legend(label( 10 "Good mentor/teacher")) ///
@@ -636,7 +719,7 @@ keep if super_name == "Julie"
 graph bar (mean) numleaderqual1 (mean) numleaderqual2 (mean) numleaderqual3 /// 
 (mean) numleaderqual4 (mean)  numleaderqual5 (mean) numleaderqual6 (mean) numleaderqual7 /// 
 (mean) numleaderqual8 (mean) numleaderqual9 (mean) numleaderqual10 (mean) numleaderqual11 ///
-,blabel(bar) ytitle(Number of Responses) title(Julie's Leadership Qualities) legend(label( 1 "Patience")) /// 
+,blabel(bar) bargap(25) ytitle(Number of Responses) title(Julie's Leadership Qualities) legend(label( 1 "Patience")) /// 
 legend(label( 2 "Fairness")) legend(label( 3 "Honesty")) legend(label( 4 "Problem Solving Skills")) /// 
 legend(label( 5 "Communication")) legend(label( 6 "Approachability")) legend(label( 7 "Empowering")) /// 
 legend(label( 8 "Trustworthiness")) legend(label( 9 "Responsible")) legend(label( 10 "Good mentor/teacher")) ///
@@ -655,7 +738,7 @@ keep if super_name == "Rosemary"
 graph bar (mean) numleaderqual1 (mean) numleaderqual2 (mean) numleaderqual3 /// 
 (mean) numleaderqual4 (mean)  numleaderqual5 (mean) numleaderqual6 (mean) numleaderqual7 /// 
 (mean) numleaderqual8 (mean) numleaderqual9 (mean) numleaderqual10  ///
-,blabel(bar) ytitle(Number of Responses) title(Rosemary's Leadership Qualities) legend(label( 1 "Patience")) /// 
+,blabel(bar) bargap(25) ytitle(Number of Responses) title(Rosemary's Leadership Qualities) legend(label( 1 "Patience")) /// 
 legend(label( 2 "Fairness")) legend(label( 3 "Honesty")) legend(label( 4 "Problem Solving Skills")) /// 
 legend(label( 5 "Communication")) legend(label( 6 "Approachability")) legend(label( 7 "Empowering")) /// 
 legend(label( 8 "Trustworthiness")) legend(label( 9 "Responsible")) legend(label( 10 "Good mentor/teacher")) ///
@@ -683,7 +766,7 @@ keep if super_name == "Blaise"
 graph bar (mean) numimproveleader1 (mean) numimproveleader2 (mean) numimproveleader3 /// 
 (mean) numimproveleader4 (mean)  numimproveleader5 (mean) numimproveleader6 (mean) numimproveleader7 /// 
 (mean) numimproveleader8 (mean) numimproveleader9 (mean) numimproveleader10 ///
-,blabel(bar) ytitle(Number of Responses) title(Blaise's Need Improvement Leadership Qualities) ///
+,blabel(bar) bargap(25) ytitle(Number of Responses) title(Blaise's Need Improvement Leadership Qualities) ///
 legend(label( 1 "Patience")) /// 
 legend(label( 2 "Fairness")) legend(label( 3 "Honesty")) legend(label( 4 "Problem Solving Skills")) /// 
 legend(label( 5 "Communication")) legend(label( 6 "Approachability")) legend(label( 7 "Empowering")) /// 
@@ -702,7 +785,7 @@ keep if super_name == "Isaac"
 graph bar (mean) numimproveleader1 (mean) numimproveleader2 (mean) numimproveleader3 /// 
 (mean) numimproveleader4 (mean)  numimproveleader5 (mean) numimproveleader6 (mean) numimproveleader7 /// 
 (mean) numimproveleader8 (mean) numimproveleader9 (mean) numimproveleader10 ///
-,blabel(bar) ytitle(Number of Responses) title(Isaac's Need Improvement Leadership Qualities) ///
+,blabel(bar) bargap(25) ytitle(Number of Responses) title(Isaac's Need Improvement Leadership Qualities) ///
 legend(label( 1 "Patience")) /// 
 legend(label( 2 "Fairness")) legend(label( 3 "Honesty")) legend(label( 4 "Problem Solving Skills")) /// 
 legend(label( 5 "Communication")) legend(label( 6 "Approachability")) legend(label( 7 "Empowering")) /// 
@@ -721,7 +804,7 @@ keep if super_name == "Honda"
 graph bar (mean) numimproveleader1 (mean) numimproveleader2 (mean) numimproveleader3 /// 
 (mean) numimproveleader4 (mean)  numimproveleader5 (mean) numimproveleader6 (mean) numimproveleader7 /// 
 (mean) numimproveleader8 (mean) numimproveleader9 (mean) numimproveleader10 ///
-,blabel(bar) ytitle(Number of Responses) title(Honda's Need Improvement Leadership Qualities) ///
+,blabel(bar) bargap(25) ytitle(Number of Responses) title(Honda's Need Improvement Leadership Qualities) ///
 legend(label( 1 "Patience")) /// 
 legend(label( 2 "Fairness")) legend(label( 3 "Honesty")) legend(label( 4 "Problem Solving Skills")) /// 
 legend(label( 5 "Communication")) legend(label( 6 "Approachability")) legend(label( 7 "Empowering")) /// 
@@ -742,7 +825,7 @@ keep if super_name == "Joseline"
 graph bar (mean) numimproveleader1 (mean) numimproveleader2 (mean) numimproveleader3 /// 
 (mean) numimproveleader4 (mean)  numimproveleader5 (mean) numimproveleader6 (mean) numimproveleader7 /// 
 (mean) numimproveleader8 (mean) numimproveleader9 (mean) numimproveleader10 ///
-,blabel(bar) ytitle(Number of Responses) title(Joseline's Need Improvement Leadership Qualities) ///
+,blabel(bar) bargap(25) ytitle(Number of Responses) title(Joseline's Need Improvement Leadership Qualities) ///
 legend(label( 1 "Patience")) /// 
 legend(label( 2 "Fairness")) legend(label( 3 "Honesty")) legend(label( 4 "Problem Solving Skills")) /// 
 legend(label( 5 "Communication")) legend(label( 6 "Approachability")) legend(label( 7 "Empowering")) /// 
@@ -761,7 +844,7 @@ keep if super_name == "Julie"
 graph bar (mean) numimproveleader1 (mean) numimproveleader2 (mean) numimproveleader3 /// 
 (mean) numimproveleader4 (mean)  numimproveleader5 (mean) numimproveleader6 (mean) numimproveleader7 /// 
 (mean) numimproveleader8 (mean) numimproveleader9 (mean) numimproveleader10 ///
-,blabel(bar) ytitle(Number of Responses) title(Julie's Need Improvement Leadership Qualities) ///
+,blabel(bar) bargap(25) ytitle(Number of Responses) title(Julie's Need Improvement Leadership Qualities) ///
 legend(label( 1 "Patience")) /// 
 legend(label( 2 "Fairness")) legend(label( 3 "Honesty")) legend(label( 4 "Problem Solving Skills")) /// 
 legend(label( 5 "Communication")) legend(label( 6 "Approachability")) legend(label( 7 "Empowering")) /// 
@@ -780,7 +863,7 @@ keep if super_name == "Rosemary"
 graph bar (mean) numimproveleader1 (mean) numimproveleader2 (mean) numimproveleader3 /// 
 (mean) numimproveleader4 (mean)  numimproveleader5 (mean) numimproveleader6 (mean) numimproveleader7 /// 
 (mean) numimproveleader8 (mean) numimproveleader9 (mean) numimproveleader10 ///
-,blabel(bar) ytitle(Number of Responses) title(Rosemary's Need Improvement Leadership Qualities) ///
+,blabel(bar) bargap(25) ytitle(Number of Responses) title(Rosemary's Need Improvement Leadership Qualities) ///
 legend(label( 1 "Patience")) /// 
 legend(label( 2 "Fairness")) legend(label( 3 "Honesty")) legend(label( 4 "Problem Solving Skills")) /// 
 legend(label( 5 "Communication")) legend(label( 6 "Approachability")) legend(label( 7 "Empowering")) /// 
@@ -790,9 +873,6 @@ note("Three Respondents") ylabel(#2)
 graph save "$OutputFolder/RosemaryImproveLeaderQual", replace
 
 restore
-
-noi display _col(5) "Done."
-noi display "Supervisor analysis complete."
 	
 /*******************************************************************************
 ********************************************************************************
@@ -805,5 +885,5 @@ noi display "Supervisor analysis complete."
 ********************************************************************************
 *******************************************************************************/
 
-} // end quietly
+} end quietly
 
