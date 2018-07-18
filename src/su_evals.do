@@ -4,14 +4,14 @@
 Authors: Jacklyn Pi, William Stubbs, Yuou Wu
 Email: jcp119@georgetown.edu wgs11@georgetown.edu yw375@georgetown.edu
 Date: 09/07/2018
-Updated: 16/07/2018
+Updated: 18/07/2018
 *******************************************************************************/
 
 quietly {
 
 	/*__________________
-	|					|
-	|	Preliminaries	|
+	|                   |
+	|   Preliminaries   |
 	|___________________*/
 
 clear all
@@ -24,7 +24,7 @@ if "`c(username)'" == "Jacklyn" {
 }
 // Graham:
 else if "`c(username)'" == "grahamstubbs" {
-	cd "/Users/grahamstubbs/Documents/Summer_2018/stata/SpeakUp_performance_evals/SpeakUp_performance_evals/"
+	cd "/Users/grahamstubbs/Documents/Summer_2018/stata/SpeakUp_performance_evals/"
 }
 // Yuou:
 else if "`c(username)'" == "yuouwu" {
@@ -314,17 +314,23 @@ noi display "Enumerator analysis complete."
 /*******************************************************************************
 ********************************************************************************
 	Supervisors: 
-		TODO:
-		- Average 
+		- Average
 		- Supervisor rating 
 		- Leadership quality bar graph
 		- Leadership  needed improvement bar graph
-		- Flag anyone enumerators wouldn't want to work with again
+		- Flag anyone supervisors wouldn't want to work with again
+		
+	Input: 
+		$TempFolder/SpeakUp_Round4_Performance_eval_preclean.dta
+	Output:
+		$OutputFolder/Speak_Up_Staff_Evals.xlsx
 ********************************************************************************
 *******************************************************************************/
 
 // CREATING EXCEL SHEET
 //Average Ratings of Traits
+
+noi display "Performing supervisor analysis... "
 
 preserve
 
@@ -343,7 +349,9 @@ bysort super_name: egen avgsuper_empowerment = mean(super_empowerment)
 bysort super_name: egen avgsuper_constructive = mean(super_constructive)
 bysort super_name: egen avgsuper_rate = mean(super_rate)
 
-putexcel set "$OutputFolder/SpeakUpEvals.xlsx", modify sheet ("Ratings")
+noi display _continue _col(5) "Exporting to excel... "
+
+putexcel set "$OutputFolder/Speak_Up_Staff_Evals.xlsx", modify sheet ("Ratings")
 	putexcel A2 = ("Supervisor") B2 = ("Good Example Rating") /// 
 		C2= ("Helpful Rating") D2=("Anticipate Rating") ///
 		E2=("Approach Rating") F2=("Communication Rating") G2=("Logistics Rating") H2=("Team Environment Rating") ///
@@ -364,7 +372,7 @@ putexcel set "$OutputFolder/SpeakUpEvals.xlsx", modify sheet ("Ratings")
 	collapse super_goodexample super_helpful super_anticipate super_approach ///
 		super_communication super_logistics super_environment super_empowerment ///
 		super_constructive super_rate, by(super_name)
-	export excel using "$OutputFolder/SpeakUpEvals.xlsx",  ///
+	export excel using "$OutputFolder/Speak_Up_Staff_Evals.xlsx",  ///
 		cell(A5) sheet ("Ratings", modify)
 	levelsof super_name
 
@@ -399,12 +407,12 @@ keep if super_workagain == 1
 keep super_name super_workagain_why
 sort super_name
 
-putexcel set "$OutputFolder/SpeakUpEvals.xlsx", modify sheet ("Work Again")
-	putexcel A1 = ("Supervisor") B1 = ("Why Work Again?") /// 
+putexcel set "$OutputFolder/Speak_Up_Staff_Evals.xlsx", modify sheet ("Supervisor Work Again")
+	putexcel A1 = ("Supervisor") B1 = ("Supervisor Work Again?") /// 
 
 	/*export to excel*/ 
-	export excel using "$OutputFolder/SpeakUpEvals.xlsx",  ///
-		cell(A2) sheet ("Work Again", modify)
+	export excel using "$OutputFolder/Speak_Up_Staff_Evals.xlsx",  ///
+		cell(A2) sheet ("Supervisor Work Again", modify)
 	levelsof super_name
 	
 restore
@@ -418,12 +426,12 @@ keep if super_workagain == 0
 keep super_name super_workagain_whynot
 
 
-putexcel set "$OutputFolder/SpeakUpEvals.xlsx", modify sheet ("Work Again")
+putexcel set "$OutputFolder/Speak_Up_Staff_Evals.xlsx", modify sheet ("Work Again")
 	putexcel A30 = ("Supervisor") B30 = ("Why Not Work Again?") /// 
 
 	/*export to excel*/ 
-	export excel using "$OutputFolder/SpeakUpEvals.xlsx",  ///
-		cell(A31) sheet ("Work Again", modify)
+	export excel using "$OutputFolder/Speak_Up_Staff_Evals.xlsx",  ///
+		cell(A31) sheet ("Supervisor Work Again", modify)
 	levelsof super_name
 restore
 
@@ -439,14 +447,14 @@ keep if super_absent == 1
 keep super_name super_absent_num
 
 
-putexcel set "$OutputFolder/SpeakUpEvals.xlsx", modify sheet ("Absent")
+putexcel set "$OutputFolder/Speak_Up_Staff_Evals.xlsx", modify sheet ("Supervisor Absences")
 	putexcel B4 = ("Supervisor") C4 = ("How Many Times Absent") /// 
 	A1 = ("Are you aware of any incidents in which you had difficulty reaching out to your supervisor?") ///
 	A2 = ("How many times was your supervisor difficult to reach?")
 
 	/*export to excel*/ 
-	export excel using "$OutputFolder/SpeakUpEvals.xlsx",  ///
-		cell(B5) sheet ("Absent", modify)
+	export excel using "$OutputFolder/Speak_Up_Staff_Evals.xlsx",  ///
+		cell(B5) sheet ("Supervisor Absences", modify)
 	levelsof super_name
 restore
 
@@ -464,11 +472,11 @@ drop if super_addcomments == "None" | super_addcomments == "No" | super_addcomme
 keep super_name super_addcomments
 
 
-putexcel set "$OutputFolder/SpeakUpEvals.xlsx", modify sheet ("Additional Comments")
+putexcel set "$OutputFolder/Speak_Up_Staff_Evals.xlsx", modify sheet ("Additional Comments")
 	putexcel A1 = ("Supervisor") B1 = ("Additional Comments") /// 
 
 	/*export to excel*/ 
-	export excel using "$OutputFolder/SpeakUpEvals.xlsx",  ///
+	export excel using "$OutputFolder/Speak_Up_Staff_Evals.xlsx",  ///
 		cell(A2) sheet ("Additional Comments", modify)
 	levelsof super_name
 restore
@@ -513,7 +521,7 @@ collapse Blaise_pastworkagain Honda_pastworkagain Isaac_pastworkagain ///
 			Lawrence_pastworkagain Godfrey_pastworkagain
 			
 
-putexcel set "$OutputFolder/SpeakUpEvals.xlsx", modify sheet ("Past Supervisors")
+putexcel set "$OutputFolder/Speak_Up_Staff_Evals.xlsx", modify sheet ("Past Supervisors")
 	putexcel A1 = ("Which supervisors would you want to work under again?") A2 = ("Supervisor") /// 
 		A3 = ("Blaise") A4 = ("Honda") 	A5 = ("Isaac") 	A6 = ("Joseline") /// 
 		A7 = ("Julie") 	A8 = ("Rosemary") A9 = ("Lawrence") A10 = ("Godfrey") /// 
@@ -524,6 +532,8 @@ putexcel set "$OutputFolder/SpeakUpEvals.xlsx", modify sheet ("Past Supervisors"
 		
 restore 
 
+noi display _col(5) "Done."
+
 
 ********************************************************************************
 ********************************************************************************
@@ -531,6 +541,9 @@ restore
 ********************************************************************************
 
 ///Graphs of Leadership Qualities
+
+noi display _continue _col(5) "Graphing leadership qualities... "
+
 keep super* 
 drop if super_yn == 1
 
@@ -777,6 +790,9 @@ note("Three Respondents") ylabel(#2)
 graph save "$OutputFolder/RosemaryImproveLeaderQual", replace
 
 restore
+
+noi display _col(5) "Done."
+noi display "Supervisor analysis complete."
 	
 /*******************************************************************************
 ********************************************************************************
