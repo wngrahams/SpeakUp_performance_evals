@@ -4,7 +4,7 @@
 Authors: Jacklyn Pi, William Stubbs, Yuou Wu
 Email: jcp119@georgetown.edu wgs11@georgetown.edu yw375@georgetown.edu
 Date: 09/07/2018
-Updated: 16/07/2018
+Updated: 18/07/2018
 *******************************************************************************/
 
 quietly {
