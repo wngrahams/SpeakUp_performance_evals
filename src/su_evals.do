@@ -10,8 +10,8 @@ Updated: 16/07/2018
 quietly {
 
 	/*__________________
-	|					|
-	|	Preliminaries	|
+	|                   |
+	|   Preliminaries   |
 	|___________________*/
 
 clear all
@@ -337,6 +337,7 @@ preserve
 keep super* 
 drop if super_yn == 1
 
+**get the average overall score for the categories of the agree statements
 bysort super_name: egen avgsuper_goodexample = mean(super_goodexample)
 bysort super_name: egen avgsuper_helpful = mean(super_helpful)
 bysort super_name: egen avgsuper_anticipate = mean(super_anticipate)
@@ -471,6 +472,7 @@ preserve
 keep pastsuper* 
 drop if pastsuper_yn == 0 | pastsuper_yn == .
 
+//counting which supervisors were chosen by enums who would work with them again
 local n "1 2 3 4 5 6"
 foreach i in `n'{
 	egen numpastsuperworkagain`i' = count(pastsuper_workagain_`i') if pastsuper_workagain_`i' == 1
@@ -482,11 +484,18 @@ egen Isaac_pastworkagain = mean(numpastsuperworkagain3)
 egen Joseline_pastworkagain = mean(numpastsuperworkagain4)
 egen Julie_pastworkagain = mean(numpastsuperworkagain5)
 egen Rosemary_pastworkagain = mean(numpastsuperworkagain6)
+
+// Lawrence and Godfrey were in the "other" option
+// created a new variable for them manually
 gen Lawrence_pastworkagain = 2
 gen Godfrey_pastworkagain = 1
 
+// getting rid of the extra rows, unnecessary bc they are counting the 
+// overall column for multiple entries of one variable
 keep if _n == 1
  
+//Honda received an "other" vote
+//added to Honda's count manually 
 replace Honda_pastworkagain = Honda_pastworkagain + 1
 collapse Blaise_pastworkagain Honda_pastworkagain Isaac_pastworkagain /// 
 			Joseline_pastworkagain Julie_pastworkagain Rosemary_pastworkagain /// 
