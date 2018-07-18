@@ -370,6 +370,25 @@ putexcel set "$OutputFolder/SpeakUpEvals.xlsx", modify sheet ("Ratings")
 
 restore
 
+// Blaise
+preserve  
+
+keep if super_name == "Blaise"
+
+graph bar avgsuper_goodexample avgsuper_helpful avgsuper_anticipate avgsuper_approach ///
+		avgsuper_communication avgsuper_logistics avgsuper_environment avgsuper_empowerment ///
+		avgsuper_constructive avgsuper_rate /// 
+,blabel(bar) bargap(25) ytitle(Average Rating) title(Blaise's Ratings) legend(label( 1 "Good Example")) /// 
+legend(label( 2 "Helpful")) legend(label( 3 "Anticipate")) legend(label( 4 "Approach")) /// 
+legend(label( 5 "Communication")) legend(label( 6 "Logistics")) legend(label( 7 "Environment")) /// 
+legend(label( 8 "Empowerment")) legend(label( 9 "Constructive")) legend(label( 10 "Overall Rating")) ///
+note("Seven Respondents")
+
+graph save "$OutputFolder/BlaiseLeaderQual", replace
+
+restore
+
+
 //Super work again and NOT work again: SHEET
 //comments from enums about why they would work for a supervisor again
 
@@ -520,8 +539,6 @@ foreach i in `n'{
 	bysort super_name: egen numleaderqual`i' = count(super_leaderqual_`i') if super_leaderqual_`i' == 1
 }
 
-
-///local super_name 
 // Blaise
 preserve  
 
